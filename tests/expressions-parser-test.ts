@@ -14,88 +14,84 @@ describe('Parse expressions using ExpressionParser class', () => {
     expect(() => parser.parse()).toThrowError();
   });
 
+  test("'((5 + 9))' should throw an exception for unnecessary parentheses", () => {
+    const lexer = new ExpressionLexer('((5 + 9))');
+    const parser = new ExpressionParser(lexer);
+    expect(() => parser.parse()).toThrowError();
+  });
+
+  test("'((5 + (8 * 3)))' should throw an exception for unnecessary parentheses", () => {
+    const lexer = new ExpressionLexer('((5 + (8 * 3)))');
+    const parser = new ExpressionParser(lexer);
+    expect(() => parser.parse()).toThrowError();
+  });
+
   test("'5 + 8' should be parsed", () => {
     const lexer = new ExpressionLexer('5 + 8');
     const parser = new ExpressionParser(lexer);
-    const res = { data: '+', left: { data: '5' }, right: { data: '8' } };
+    const res = ['+', '5', '8'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'5 + 8 * 3' should be parsed", () => {
     const lexer = new ExpressionLexer('5 + 8 * 3');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '+',
-      left: { data: '5' },
-      right: { data: '*', left: { data: '8' }, right: { data: '3' } }
-    };
+    const res = ['+', '5', '*', '8', '3'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'5 + 8 * -3 / 5' should be parsed", () => {
     const lexer = new ExpressionLexer('5 + 8 * -3 / 5');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '+',
-      left: { data: '5' },
-      right: {
-        data: '*',
-        left: { data: '8' },
-        right: { data: '/', left: { data: '-3' }, right: { data: '5' } }
-      }
-    };
+    const res = ['+', '5', '*', '8', '/', '-3', '5'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'(5 + 8)' should be parsed", () => {
     const lexer = new ExpressionLexer('(5 + 8)');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '+',
-      left: { data: '5' },
-      right: { data: '8' }
-    };
+    const res = ['+', '5', '8'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'(5 + 8) * 3' should be parsed", () => {
     const lexer = new ExpressionLexer('(5 + 8) * 3');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '*',
-      left: { data: '+', left: { data: '5' }, right: { data: '8' } },
-      right: { data: '3' }
-    };
+    const res = ['*', '+', '5', '8', '3'];
+    expect(parser.parse()).toEqual(res);
+  });
+
+  test("'(6 + 8 * 3) + 5' should be tokenized", () => {
+    const lexer = new ExpressionLexer('(6 + 8 * 3) + 5');
+    const parser = new ExpressionParser(lexer);
+    expect(parser.parse()).toEqual(['+', '+', '6', '*', '8', '3', '5']);
+  });
+
+  test("'5 + (6 + 8 * 3) - 2' should be tokenized", () => {
+    const lexer = new ExpressionLexer('5 + (6 + 8 * 3) - 2');
+    const parser = new ExpressionParser(lexer);
+    const res = ['+', '5', '-', '+', '6', '*', '8', '3', '2'];
+    expect(parser.parse()).toEqual(res);
+  });
+
+  test("'5 * ((6 + 8) * 3) - 2' should be tokenized", () => {
+    const lexer = new ExpressionLexer('5 * ((6 + 8) * 3) - 2');
+    const parser = new ExpressionParser(lexer);
+    const res = ['-', '*', '5', '*', '+', '6', '8', '3', '2'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'(-5 + 8) * (-3 + -2) * (5 - -1)' should be parsed", () => {
     const lexer = new ExpressionLexer('(-5 + 8) * (-3 + -2) * (5 - -1)');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '*',
-      left: { data: '+', left: { data: '-5' }, right: { data: '8' } },
-      right: {
-        data: '*',
-        left: { data: '+', left: { data: '-3' }, right: { data: '-2' } },
-        right: { data: '-', left: { data: '5' }, right: { data: '-1' } }
-      }
-    };
+    const res = ['*', '+', '-5', '8', '*', '+', '-3', '-2', '-', '5', '-1'];
     expect(parser.parse()).toEqual(res);
   });
 
   test("'(-5 - -8) * (-3 + -2) * (5 - 1)' should be parsed", () => {
     const lexer = new ExpressionLexer('(-5 - -8) * (-3 + -2) * (5 - 1)');
     const parser = new ExpressionParser(lexer);
-    const res = {
-      data: '*',
-      left: { data: '-', left: { data: '-5' }, right: { data: '-8' } },
-      right: {
-        data: '*',
-        left: { data: '+', left: { data: '-3' }, right: { data: '-2' } },
-        right: { data: '-', left: { data: '5' }, right: { data: '1' } }
-      }
-    };
+    const res = ['*', '-', '-5', '-8', '*', '+', '-3', '-2', '-', '5', '1'];
     expect(parser.parse()).toEqual(res);
   });
 });

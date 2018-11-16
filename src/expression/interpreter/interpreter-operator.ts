@@ -10,7 +10,6 @@ export const MULTIPLICATION = '*';
 export const LEFT_PARENTHESIS = '(';
 export const RIGHT_PARENTHESIS = ')';
 
-// typescript reverse mapping
 export const OPERATORS_MAP = new Map()
   .set(PLUS, AdditionOperatorExpression)
   .set(MINUS, MinusOperatorExpression)
